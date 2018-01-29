@@ -1,0 +1,92 @@
+with "../../../boards/stm32f407_discovery/stm32f407_discovery.gpr";
+
+project TTS extends "../../shared/common/common.gpr" is
+
+   for Runtime ("ada") use Stm32F407_Discovery'Runtime ("Ada");
+   for Target use "arm-eabi";
+   for Languages use ("Ada");
+   for Source_Dirs use ("src", "examples");
+   for Object_Dir use "obj";
+   for Create_Missing_Dirs use "True";
+   type Lch_Type is
+      ("led", "lcd");
+   Lch : Lch_Type := external ("LCH");
+   type Rts_Type is
+      ("ravenscar-sfp", "ravenscar-full");
+   Rts_Profile : Rts_Type := external ("RTS_Profile");
+   type Loader_Type is
+      ("RAM", "ROM");
+   Loader : Loader_Type := external ("LOADER");
+   type Build_Type is
+      ("Debug", "Production");
+   Platform_Build : Build_Type := external ("PLATFORM_BUILD");
+
+   package Compiler is
+
+      case Lch is
+
+         when "led" =>
+
+            case Rts_Profile is
+
+               when "ravenscar-sfp" =>
+
+               when "ravenscar-full" =>
+
+                  case Loader is
+
+                     when "RAM" =>
+
+                     when "ROM" =>
+
+                        case Platform_Build is
+
+                           when "Debug" =>
+                              for Default_Switches ("ada") use ("-g", "-O0", "-gnata", "-fcallgraph-info=su", "-gnatwa.X", "-gnatQ", "-gnatyy", "-gnatyyO", "-gnatyyM120", "-ffunction-sections", "-fdata-sections");
+
+                           when "Production" =>
+
+                        end case;
+                  end case;
+            end case;
+
+         when "lcd" =>
+
+      end case;
+   end Compiler;
+
+   case Lch is
+
+      when "led" =>
+
+         case Rts_Profile is
+
+            when "ravenscar-sfp" =>
+               for Main use ("main1.adb");
+
+            when "ravenscar-full" =>
+
+               case Loader is
+
+                  when "RAM" =>
+                     for Main use ("main1.adb");
+
+                  when "ROM" =>
+
+                     case Platform_Build is
+
+                        when "Debug" =>
+                           for Main use ("main1.adb", "main2.adb");
+
+                        when "Production" =>
+                           for Main use ("main1.adb");
+                     end case;
+               end case;
+         end case;
+
+      when "lcd" =>
+         for Main use ("main1.adb");
+   end case;
+
+end TTS;
+
